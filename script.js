@@ -213,14 +213,14 @@ function populateStudentInfo(studentInformationObject) {
 function addReportCardHeaders(reportCardTableElement) {
     // update the code here
     reportCardTableElement.innerHTML += `
-    <div class="table-header">
-      <h4 class="code-col">Code</h4>
-      <h4 class="name-col">Name</h4>
-      <h4 class="sem-col">Semester</h4>
-      <h4 class="cred-col">Credits</h4>
-      <h4 class="lett-col">Letter</h4>
-      <h4 class="pts-col">Points</h4>
-    </div>
+    <div class="table-row table-header">
+        <h4 class="code-col">Code</h4>
+        <h4 class="name-col">Name</h4>
+        <h4 class="sem-col">Semester</h4>
+        <h4 class="cred-col">Credits</h4>
+        <h4 class="lett-col">Letter</h4>
+        <h4 class="pts-col">Points</h4>
+      </div>
     `;
 }
 
@@ -241,9 +241,12 @@ function addCourseRowToReportCard(reportCardTableElement, course, rowNum) {
       <h4 class=code-col"> ${course.code}</h4>
       <h4 class="name-col"> ${course.name}</h4>
       <h4 class="sem-col"> ${course.semester}</h4>
-      <h4 class="cred-col"> ${course.credits}</h4>
+      <h4 class="cred-col"> <span class="credit">${
+        course.credits
+      }</span> credits </h4>
       <h4 class="lett-col"> ${course.grade}</h4>
-    </div>
+      <h4 class="pts-col" id="gpa-${rowNum + 1}"> </h4>
+      </div>
   </div>
   `;
 }
@@ -275,11 +278,16 @@ function updateReportCard(reportCardTableElement, currentSemester) {
     if (reportCardTableElement) reportCardTableElement.innerHTML = ``;
 
     // add your code here
-    addReportCardHeaders(studentData);
-    addCourseRowToReportCard(studentData, studentData.course, 1);
+    addReportCardHeaders(reportCardTableElement);
+
+    const classes = studentData[currentSemester];
+
+    classes.forEach((course, i) => {
+        addCourseRowToReportCard(reportCardTableElement, course, i);
+    });
 }
 
-/**
+/*
  * SOLUTION FOR DROPDOWN EVENT HANDLERS
  */
 
@@ -290,11 +298,11 @@ function updateReportCard(reportCardTableElement, currentSemester) {
  * If the dropdown classList doesn't contain the "closed" class, 'closeDropdown' function should add it.
  */
 function closeDropdown(dropdownElement) {
-    // code goes here
+    dropdownElement.classList.add("closed");
 }
 
 function openDropdown(dropdownElement) {
-    // code goes here
+    dropdownElement.classList.remove("closed");
 }
 
 /**
@@ -303,7 +311,7 @@ function openDropdown(dropdownElement) {
  *
  */
 function updateDropdownLabel() {
-    // code goes here
+    semesterDropdownLabelElement.innerHTML = semester;
 }
 
 /**
@@ -323,6 +331,21 @@ function addEventListeners(
     // Add 3 event listeners - one for the fall semester option, the spring semester option, and the winter term option
     // Each callback function one should update the `semester` variable,
     // call the `updateReportCard` function, and close the dropdown
+    dropdownButtonElement.addEventListener("click", () => {
+        openDropdown(dropdownElement);
+    });
+    fallSemesterElement.addEventListener("click", () => {
+        updateReportCard(fallSemesterElement);
+        closeDropdown(dropdownElement);
+    });
+    springSemesterElement.addEventListener("click", () => {
+        updateReportCard(springSemesterElement);
+        closeDropdown(dropdownElement);
+    });
+    winterTermElement.addEventListener("click", () => {
+        updateReportCard(winterTermElement);
+        closeDropdown(dropdownElement);
+    });
 }
 
 /***************
@@ -362,5 +385,5 @@ function calculateSemesterGpa(reportCardTableElement) {
 window.onload = function() {
     // execute your functions here to make sure they run as soon as the page loads
     populateStudentInfo(studentInformation);
-    //updateReportCard();
+    updateReportCard(reportCardTableElement, studentData[semester]);
 };
